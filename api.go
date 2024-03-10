@@ -45,6 +45,8 @@ func (s *APIServer) Run() error {
 
 	router.HandleFunc("/account", makeHTTPHandler(s.handleAccount))
 
+	router.HandleFunc("/account/{id}", makeHTTPHandler(s.handleGetAccount))
+
 	log.Println("Bank API running on port", s.listenAddr)
 
 	http.ListenAndServe(s.listenAddr, router)
@@ -71,9 +73,15 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
 
-	account := NewAccount("Kez", "Anwar")
+	id := mux.Vars(r)["id"]
 
-	WriteJSON(w, http.StatusOK, account)
+	if len(id) > 0 {
+		// fetch acc from database
+		WriteJSON(w, http.StatusOK, &Account{})
+	} else {
+		account := NewAccount("Kez", "Anwar")
+		WriteJSON(w, http.StatusOK, account)
+	}
 
 	return nil
 }
