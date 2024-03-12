@@ -1,6 +1,6 @@
 # Bank API
 
-## (Learner project) GoLang / Postgres / Docker
+A learner project for me, building a little interactive API simulating creating a simple bank account and making tranfers using GoLang / Postgres / Docker.
 
 ### Initial Setup
 
