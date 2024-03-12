@@ -1,6 +1,6 @@
 # Bank API
 
-A learner project for me, building a little interactive API simulating creating a simple bank account and making tranfers using GoLang / Postgres / Docker.
+A learner project for me, building a small REST API with JWT authentication, the ability to CRUD a bank account and make tranfers using GoLang / Postgres / Docker.
 
 ### Initial Setup
 
