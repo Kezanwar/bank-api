@@ -1,6 +1,6 @@
 # Bank API (Learner project) GoLang / Postgres / Docker
 
-### ---- Initial Setup
+### Initial Setup
 
 Create .env in root using this example
 
@@ -18,4 +18,4 @@ docker run --name <DB_NAME> -e POSTGRES_PASSWORD=<DB_PASSWORD> -p :<PORT_DOCKER>
 
 Amend Makefile to reflect chosen DB_NAME
 
-### ---- Build / Dev
+### Build / Dev
