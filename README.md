@@ -1,4 +1,6 @@
-# Bank API (Learner project) GoLang / Postgres / Docker
+# Bank API
+
+## (Learner project) GoLang / Postgres / Docker
 
 ### Initial Setup
 
