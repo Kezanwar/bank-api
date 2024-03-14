@@ -11,5 +11,8 @@ dev:
 start-db: 
 	@docker start bank-api-db
 
+stop-db:
+	@docker stop bank-api-db
+
 test: 
 	@go test -v ./..

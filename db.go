@@ -106,7 +106,20 @@ func (s *PostGresDB) DeleteAccount(id int) error {
 }
 
 func (s *PostGresDB) GetAccountByID(id int) (*Account, error) {
-	return nil, nil
+	rows, err := s.db.Query(
+		`SELECT * FROM Account where id = $1`, id,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		return scanIntoAccount(rows)
+
+	}
+
+	return nil, fmt.Errorf("Account %d not found", id)
 }
 
 func (s *PostGresDB) GetAccounts() ([]*Account, error) {
@@ -122,15 +135,7 @@ func (s *PostGresDB) GetAccounts() ([]*Account, error) {
 	accounts := []*Account{}
 
 	for rows.Next() {
-		account := &Account{}
-		err := rows.Scan(
-			&account.ID,
-			&account.FirstName,
-			&account.LastName,
-			&account.Number,
-			&account.Balance,
-			&account.CreatedAt,
-		)
+		account, err := scanIntoAccount(rows)
 
 		if err != nil {
 			return nil, err
@@ -140,4 +145,17 @@ func (s *PostGresDB) GetAccounts() ([]*Account, error) {
 	}
 
 	return accounts, nil
+}
+
+func scanIntoAccount(rows *sql.Rows) (*Account, error) {
+	account := &Account{}
+	err := rows.Scan(
+		&account.ID,
+		&account.FirstName,
+		&account.LastName,
+		&account.Number,
+		&account.Balance,
+		&account.CreatedAt,
+	)
+	return account, err
 }
