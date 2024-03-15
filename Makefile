@@ -15,4 +15,4 @@ stop-db:
 	@docker stop bank-api-db
 
 test: 
-	@go test -v ./..
+	@go test -v ./
