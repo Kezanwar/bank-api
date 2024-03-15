@@ -102,6 +102,14 @@ func (s *PostGresDB) UpdateAccount(*Account) error {
 }
 
 func (s *PostGresDB) DeleteAccount(id int) error {
+	_, err := s.db.Query(
+		`DELETE FROM Account where id = $1`, id,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
