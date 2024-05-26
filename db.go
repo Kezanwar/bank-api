@@ -79,7 +79,7 @@ func (s *PostGresDB) CreateAccount(acc *Account) error {
 	values ($1, $2, $3, $4, $5)
 	;`
 
-	resp, err := s.db.Query(
+	_, err := s.db.Query(
 		query,
 		acc.FirstName,
 		acc.LastName,
@@ -92,7 +92,7 @@ func (s *PostGresDB) CreateAccount(acc *Account) error {
 		return err
 	}
 
-	fmt.Printf("%+v\n", resp)
+	// fmt.Printf("%+v\n", resp)
 
 	return nil
 }
@@ -101,13 +101,30 @@ func (s *PostGresDB) UpdateAccount(*Account) error {
 	return nil
 }
 
-func (s *PostGresDB) DeleteAccount(id int) error {
-	_, err := s.db.Query(
+func (s *PostGresDB) DeleteAccountByID(id int) error {
+
+	rows, findErr := s.db.Query(
+		`SELECT * FROM Account where id = $1`, id,
+	)
+
+	if findErr != nil {
+		return findErr
+	}
+
+	for rows.Next() {
+		_, err := scanIntoAccount(rows)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	_, deleteErr := s.db.Query(
 		`DELETE FROM Account where id = $1`, id,
 	)
 
-	if err != nil {
-		return err
+	if deleteErr != nil {
+		return deleteErr
 	}
 
 	return nil

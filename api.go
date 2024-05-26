@@ -25,7 +25,7 @@ func NewApiServer(listenAddr string, store *PostGresDB) *APIServer {
 type ApiHandler func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
-	Error string `json:"error"`
+	Message string `json:"message"`
 }
 
 type EmptySuccessResponse struct {
@@ -36,7 +36,7 @@ func makeHTTPHandler(f ApiHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
 			// handle the error
-			WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
+			WriteJSON(w, http.StatusBadRequest, ApiError{Message: err.Error()})
 		}
 	}
 }
@@ -160,7 +160,7 @@ func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	deleteErr := s.store.DeleteAccount(id)
+	deleteErr := s.store.DeleteAccountByID(id)
 
 	if deleteErr != nil {
 		return fmt.Errorf("unable to delete account with ID %d", id)
