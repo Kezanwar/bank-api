@@ -103,20 +103,10 @@ func (s *PostGresDB) UpdateAccount(*Account) error {
 
 func (s *PostGresDB) DeleteAccountByID(id int) error {
 
-	rows, findErr := s.db.Query(
-		`SELECT * FROM Account where id = $1`, id,
-	)
+	_, err := s.GetAccountByID(id)
 
-	if findErr != nil {
-		return findErr
-	}
-
-	for rows.Next() {
-		_, err := scanIntoAccount(rows)
-
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	_, deleteErr := s.db.Query(
