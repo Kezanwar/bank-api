@@ -136,19 +136,22 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 // * handles POST /account
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
 	createAccountReq := new(CreateAccountRequest)
+
 	if err := json.NewDecoder(r.Body).Decode(createAccountReq); err != nil {
 		return err
 	}
 
 	defer r.Body.Close()
 
-	account := NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
+	newAcc := NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
 
-	if err := s.store.CreateAccount(account); err != nil {
-		return err
+	createdAcc, err := s.store.CreateAccount(newAcc)
+
+	if err != nil {
+		return fmt.Errorf("unable to create an account")
 	}
 
-	return WriteJSON(w, http.StatusOK, account)
+	return WriteJSON(w, http.StatusOK, createdAcc)
 }
 
 // * handles DELETE /account

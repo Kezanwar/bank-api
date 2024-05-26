@@ -72,14 +72,15 @@ func (s *PostGresDB) CreateAccountTable() error {
 	return nil
 }
 
-func (s *PostGresDB) CreateAccount(acc *Account) error {
+func (s *PostGresDB) CreateAccount(acc *Account) (*Account, error) {
 
 	query := `INSERT INTO Account 
 	(FirstName, LastName, Number, Balance, CreatedAt)
 	values ($1, $2, $3, $4, $5)
+	RETURNING *
 	;`
 
-	_, err := s.db.Query(
+	rows, err := s.db.Query(
 		query,
 		acc.FirstName,
 		acc.LastName,
@@ -89,12 +90,17 @@ func (s *PostGresDB) CreateAccount(acc *Account) error {
 	)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// fmt.Printf("%+v\n", resp)
 
-	return nil
+	for rows.Next() {
+		return scanIntoAccount(rows)
+
+	}
+
+	return nil, fmt.Errorf("unable to create account")
 }
 
 func (s *PostGresDB) UpdateAccount(*Account) error {
