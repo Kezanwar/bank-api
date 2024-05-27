@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type APIServer struct {
@@ -47,12 +48,34 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
+func getUserFromHeader(r *http.Request) (*Account, error) {
+	user := r.Header.Get("x-server-user")
+
+	if len(user) == 0 {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	userInterface := Account{}
+
+	err := json.Unmarshal([]byte(user), &userInterface)
+
+	if err != nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	return &userInterface, nil
+
+}
+
 func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/account", makeHTTPHandler(s.handleAccount))
 	router.HandleFunc("/account/{id}", makeHTTPHandler(s.handleAccountByID))
 	router.HandleFunc("/transfer", makeHTTPHandler(s.handleTransfer))
+
+	router.Use(loggingMiddleware)
+	router.Use(makeAuthMiddleware(s))
 
 	log.Println("Bank API running on port", s.listenAddr)
 
@@ -121,6 +144,10 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 
 		WriteJSON(w, http.StatusOK, account)
 	} else {
+		// user, err := getUserFromHeader(r)
+
+		// print_map(user)
+
 		accounts, err := s.store.GetAccounts()
 
 		if err != nil {
@@ -149,6 +176,14 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		return fmt.Errorf("unable to create an account")
+	}
+
+	tokenString, err := createJWT(createdAcc)
+
+	log.Println(tokenString)
+
+	if err != nil {
+		return WriteJSON(w, http.StatusInternalServerError, &ApiError{Message: "a server error occured"})
 	}
 
 	return WriteJSON(w, http.StatusOK, createdAcc)
